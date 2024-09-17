@@ -16,6 +16,7 @@ bool IsBipartite(vector<vector<int>>& graph)
 {
 	int V = int(graph.size());
 	vector<int> colors(V, -1);
+	vector<bool> visited(V, false);
 
 	colors[0] = 0;
 
@@ -38,13 +39,15 @@ bool IsBipartite(vector<vector<int>>& graph)
 				colors[v] = 1 - colors[u]; // color는 0 또는 1, 이웃은 다른 색으로 설정
 				q.push(v);
 			}
-			//else if ( TODO )
-			//{
-			//	cout << u << " " << v << endl;
-			//	return false;
-			//}
+			else if (graph[u][v] && colors[v] == colors[u])
+			{
+				cout << u << " " << v << endl;
+				return false;
+			}
 		}
 
+	
+		cout << '\n';
 		Print(colors);
 	}
 

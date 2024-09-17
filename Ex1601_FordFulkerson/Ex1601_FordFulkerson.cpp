@@ -88,7 +88,10 @@ public:
 		int v = e.Either();
 		int w = e.Other(v);
 		adj[v].push_back(newEdge); // v의 out_neighbor
-		adj[w].push_back(newEdge); // w의 in_neighbor, 이거 왜 필요함?
+		adj[w].push_back(newEdge); // w의 in_neighbor, 이거 왜 필요함? w위치에서 augmenting path이어나갈 때
+														//v->w flow를 다른 방향으로 우회시켜주는 방식으로
+														//새 path를 찾을 수도 있음
+														//residual graph를 따로 만들지않아도 된다.
 	}
 
 	vector<FlowEdge*>& Adj(int v)
@@ -119,45 +122,19 @@ public:
 		//모든 edge들의 유량들이 0으로 초기화되어 있는 상황.
 		while (HasAugmentingPath(g, s, t))
 		{
-			// 힌트: Other(), ResidualCapacityTo(), AddResidualFlowTo() 사용
 			// TODO:
 			double bottle_neck = INT_MAX;
 
 			for(int i = t; i != s; i = prev[i]->From()){
 				bottle_neck = min(bottle_neck, prev[i]->ResidualCapacityTo(i));
 			}
-
-			// while(pos->From() != s){
-			// 	//edge : v->pos
-			// 	if(pos->ResidualCapacityTo(pos->To()) < bottle_neck){
-			// 		bottle_neck = pos->ResidualCapacityTo(pos->To());
-			// 	}
-			// 	pos = prev[pos->From()];
-			// }
-			// if(pos->ResidualCapacityTo(pos->To()) < bottle_neck){
-			// 	bottle_neck = pos->ResidualCapacityTo(pos->To());
-			// }
 			
 			//경로상의 모든 edge의 유량을 bottle_neck 만큼 증가시키기
 			for(int i = t; i != s; i = prev[i]->From()){
 				prev[i]->AddResidualFlowTo(i,bottle_neck);
 			}
 
-			// pos = prev[t];
-			// while(pos->From() != s){
-			// 	//edge : v->pos
-			// 	pos->AddResidualFlowTo(pos->To(),bottle_neck);
-			// 	pos = prev[pos->From()];
-			// }
-			// pos->AddResidualFlowTo(pos->To(),bottle_neck);
-
 			value += bottle_neck;
-
-			// for(auto edge : g.Adj(t)){
-			// 	if(edge->To() == t){
-			// 		value += edge->Flow();
-			// 	}
-			// }	
 
 			Print(g);
 		}
@@ -182,7 +159,9 @@ public:
 			{
 				int w = e->Other(v);
 				if (!marked[w] && e->ResidualCapacityTo(w) > 0) // <- TODO: BFS와의 차이 확인
-				{
+				{					//edge가 v->w가 아니라 w->v 방향 엣지인 경우
+									//v로 들어오는 flow를 다른데로 돌릴 수 있는 지 확인하게 됨.
+									//line 48, 91 참고
 					prev[w] = e;
 					marked[w] = true;
 					q.push(w);
