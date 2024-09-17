@@ -16,7 +16,6 @@ bool IsBipartite(vector<vector<int>>& graph)
 {
 	int V = int(graph.size());
 	vector<int> colors(V, -1);
-	vector<bool> visited(V, false);
 
 	colors[0] = 0;
 
