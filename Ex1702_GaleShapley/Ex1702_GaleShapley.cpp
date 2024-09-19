@@ -14,6 +14,14 @@ struct Vertex
 	vector<string> priority; // 선호도 우선순위
 	int current = -1; // 현재 자신의 몇 "순위"와 연결되어 있는지 기록
 
+	// Vertex(){}	//변환 생성자가 존재해서 기본 생성자가 자동으로 만들어지지 않음
+
+	// Vertex(string para_name, vector<string> para_priority)
+	// {
+	// 	name = para_name;
+	// 	priority = para_priority;
+	// }
+
 	int Rank(string name)
 	{
 		for (int i = 0; i < priority.size(); i++)
@@ -62,7 +70,7 @@ void Print(map<string, Vertex>& interns, unordered_map<string, Vertex>& teams)
 int main()
 {
 	map<string, Vertex> interns; // 디버깅할때 순서대로 보기 위해 map 사용, unordered_map 사용 가능
-	interns["A"] = Vertex{ "A", {"X", "Y", "Z"} };
+	interns["A"] = Vertex{"A", {"X", "Y", "Z"}};
 	interns["B"] = Vertex{ "B", {"Y", "X", "Z"} };
 	interns["C"] = Vertex{ "C", {"Y", "Z", "X"} };
 
@@ -70,9 +78,9 @@ int main()
 	teams["X"] = Vertex{ "X", {"B", "A", "C"} };
 	teams["Y"] = Vertex{ "Y", {"A", "B", "C"} };
 	teams["Z"] = Vertex{ "Z", {"B", "C", "A"} };
-	//teams["X"] = Vertex{ "X", {"B", "A", "C"} };
-	//teams["Y"] = Vertex{ "Y", {"A", "C", "B"} };
-	//teams["Z"] = Vertex{ "Z", {"B", "C", "A"} };
+	teams["X"] = Vertex{ "X", {"B", "A", "C"} };
+	teams["Y"] = Vertex{ "Y", {"A", "C", "B"} };
+	teams["Z"] = Vertex{ "Z", {"B", "C", "A"} };
 
 	queue<Vertex*> free_interns;
 	for (auto& i : interns)
@@ -85,25 +93,25 @@ int main()
 
 		cout << "Intern " << i->name << endl;
 
-		// i->current += 1;
+		i->current += 1; //꺼낼 때마다 1씩 낮은 우선순위의 팀과 매칭
 
-		// Vertex* t = &teams[i->ConnectedName()];
+		Vertex* t = &teams[i->ConnectedName()]; //현재 우선순위에 맞는 팀
 
-		//if (t->current == -1)
-		//{
-		//	t->current = TODO;
-		//}
-		//else
-		//{
-		//	if ( TODO )
-		//	{
-		//		free_interns.push(&interns[t->ConnectedName()]);
-		//		t->current = t->Rank(i->name);
-		//	}
-		//	else {
-		//		free_interns.push(i);
-		//	}
-		//}
+		if (t->current == -1)
+		{
+			t->current = t->Rank(i->name);	//팀 입장에서 인턴의 우선순위
+		}
+		else
+		{
+			if (t->Rank(i->name) < t->current)	//새 인턴의 우선순위가 이미 매칭되어있는 인턴의 우선순위보다 높은 경우
+			{
+				free_interns.push(&interns[t->ConnectedName()]); //vertex* 를 집어넣어야 함 
+				t->current = t->Rank(i->name);
+			}
+			else {
+				free_interns.push(i);
+			}
+		}
 
 		Print(interns, teams);
 	}
