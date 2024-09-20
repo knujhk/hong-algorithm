@@ -81,6 +81,32 @@ private:
 	void DepthFirstPathHelper(Vertex* source, Vertex* sink, vector<Vertex*> path)
 	{
 		// TODO:
+		// 재귀호출할 때마다 path를 복사하는 게 아니라 prev벡터 하나 돌려쓰면서 경로 찾고
+		// 하나 찾을 때마다 longest path 최신화하면 됨. (vector<Vertex*> longestPath)
+		// 여기서는 path를 복사하는 방식 사용
+
+		//cout << source->value << "->";
+		path.push_back(source);
+		PrintPath(path);
+
+		if(source == sink){
+			cout << "found path : ";
+			PrintPath(path);
+			if(path.size() > longest_path.size()){
+				cout << "new longest path" << '\n';
+				longest_path = path;
+			}
+		}
+		else{
+			source->visited = true;
+			for(auto v : source->out_neighbors){
+				if(!v->visited){
+					DepthFirstPathHelper(v,sink,path);
+				}
+			}
+			source->visited = false;
+		}
+
 	}
 
 	void PrintPath(vector<Vertex*> path)
