@@ -71,6 +71,62 @@ private:
 	void TravellingSalesmanHelper(Vertex* source, Vertex* sink, vector<Vertex*> path, int wsum)
 	{
 		// TODO:
+		path.push_back(source);
+		//wsum엔 현재 정점으로 오는 경로의 가중치가 합산되어있음
+		//PrintPath(path);
+
+		if(source == sink && path.size() > 1){
+			if(path.size() == vertices.size()+1){
+				cout << "found : "; 
+				PrintPath(path);
+				cout << "cost : " << wsum  << '\n';
+
+				if(wsum < min_wsum){
+					min_wsum = wsum;
+					minimum_path = path;
+				}
+			}
+			else{
+				cout << "discard : "; 
+				PrintPath(path);
+			}
+		}
+		else{
+			if(source != sink)
+				source->visited = true;
+			for(auto edge : source->out_neighbors){
+				if(!vertices[edge.v]->visited)
+					TravellingSalesmanHelper(vertices[edge.v],sink,path,wsum + edge.weight);
+			}
+			source->visited = false;
+		}
+
+
+		// for(auto edge : source->out_neighbors){
+		// 	int v = edge.v;
+		// 	if(vertices[v] == sink){
+		// 		if(path.size() == vertices.size()){
+		// 			cout << "found : "; 
+		// 			PrintPath(path); //sink를 따로 출력해줘야됨, path에 들어가있지 않음
+		// 			cout << "->" <<sink->value << '\n';
+		// 			cout << "cost : " << wsum + edge.weight << '\n';
+		// 			if(wsum + edge.weight < min_wsum){
+		// 				min_wsum = wsum + edge.weight;
+		// 				minimum_path = path;
+		// 			}
+		// 		}
+		// 		else{
+		// 			cout << "discard : "; 
+		// 			PrintPath(path); //sink를 따로 출력해줘야됨, path에 들어가있지 않음
+		// 			cout << "->" << sink->value << '\n';
+		// 		}
+		// 	}
+		// 	else if(!vertices[v]->visited){
+		// 		source->visited = true;
+		// 		TravellingSalesmanHelper(vertices[v],sink,path,wsum + edge.weight);
+		// 		source->visited = false;
+		// 	}
+		// }
 	}
 
 	void PrintPath(vector<Vertex*> path)
