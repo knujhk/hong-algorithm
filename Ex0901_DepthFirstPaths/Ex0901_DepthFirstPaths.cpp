@@ -25,6 +25,7 @@ public:
 		vertices.resize(num_vertices);
 		for (int i = 0; i < num_vertices; i++)
 			vertices[i] = new Vertex(i);
+		prev.resize(num_vertices,nullptr);
 	}
 
 	~Graph()
@@ -74,23 +75,32 @@ public:
 
 private:
 	vector<Vertex*> vertices;
+	vector<Vertex*> prev;
 
 	// 힌트: 인수 path는 호출될때마다 매번 복사가 됩니다.
 	void DepthFirstPathHelper(Vertex* source, Vertex* sink, vector<Vertex*> path)
 	{
-		path.push_back(source);
-		PrintPath(path);
+		//path.push_back(source);
+		//PrintPath(path);
+		//path 벡터를 매번 복사할 필요가 없고 각 정점의 이전에 방문한 prev 벡터
+		//하나만 있으면 됨(클래스 멤버 변수, 공용으로 사용)
+		//왜냐하면 dfs중 끝까지 도달한 뒤에 마지막 갈림길로 돌아온다 하더라도
+		//prev벡터에는 해당 갈림길까지의 경로가 그대로 저장되어있으므로
+		//이어서 기록해나가면 됨.
 
 		// TODO:
 		if(source == sink){
 			cout << "FOUND : ";
-			PrintPath(path);
+			//PrintPath(path);
+			PrintPrev(sink);
 		}
 		else{
 			source->visited = true;
 			for(auto v : source->out_neighbors){
-				if(!v->visited)
+				if(!v->visited){
+					prev[v->value] = source;
 					DepthFirstPathHelper(v,sink,path);
+				}
 			}
 			source->visited = false;
 		}
@@ -105,6 +115,20 @@ private:
 				cout << " -> ";
 		}
 		cout << endl;
+	}
+	void PrintPrev(Vertex* sink)
+	{
+		stack<Vertex*> s;
+		while(sink){
+			s.push(sink);
+			sink = prev[sink->value];
+		}
+		while(!s.empty()){
+			Vertex* v = s.top();
+			s.pop();
+			cout << v->value << "->";
+		}
+		cout << '\n';
 	}
 };
 
